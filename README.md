@@ -1,5 +1,5 @@
-##Daps##
-###The LDAP Bundle### 
+##Daps
+###The LDAP Bundle
 
 This bundle is based off of the pull request accepted by Symfony2 for LDAP support.
 While it has been accepted, some of us would like to use this code sooner than 
