@@ -9,7 +9,7 @@
  * file that was distributed with this source code.
  */
 
-namespace Daps\Bundle\DependencyInjection\Security\Factory;
+namespace Daps\LdapBundle\DependencyInjection\Security\Factory;
 
 use Symfony\Component\DependencyInjection\DefinitionDecorator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
