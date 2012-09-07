@@ -1,0 +1,63 @@
+<?php
+
+/*
+ * This file is part of the Symfony package.
+ *
+ * (c) Fabien Potencier <fabien@symfony.com>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
+namespace Daps\LdapBundle\DependencyInjection\Security\UserProvider;
+
+use Symfony\Component\Config\Definition\Builder\NodeDefinition;
+
+use Symfony\Bundle\SecurityBundle\DependencyInjection\Security\UserProvider\UserProviderFactoryInterface;
+use Symfony\Component\DependencyInjection\DefinitionDecorator;
+use Symfony\Component\DependencyInjection\ContainerBuilder;
+use Symfony\Component\DependencyInjection\Reference;
+
+/**
+ * LdapFactory creates services for Ldap user provider.
+ *
+ * @author Grégoire Pineau <lyrixx@lyrixx.info>
+ */
+class LdapFactory implements UserProviderFactoryInterface
+{
+    private $key;
+    private $providerId;
+
+    public function create(ContainerBuilder $container, $id, $config)
+    {
+        $container
+            ->setDefinition('security.ldap.ldap.'.$id , new DefinitionDecorator('security.ldap.ldap'))
+            ->addArgument($config['host'])
+            ->addArgument($config['port'])
+            ->addArgument($config['dn'])
+            ->addArgument($config['username_suffix'])
+        ;
+
+        $container
+            ->setDefinition($id, new DefinitionDecorator('security.user.provider.ldap'))
+            ->replaceArgument(0, new Reference('security.ldap.ldap.'.$id));
+        ;
+    }
+
+    public function getKey()
+    {
+        return 'ldap';
+    }
+
+    public function addConfiguration(NodeDefinition $node)
+    {
+        $node
+            ->children()
+                ->scalarNode('host')->isRequired()->cannotBeEmpty()->end()
+                ->scalarNode('port')->cannotBeEmpty()->defaultValue(389)->end()
+                ->scalarNode('dn')->isRequired()->cannotBeEmpty()->end()
+                ->scalarNode('username_suffix')->defaultValue('')->end()
+            ->end()
+        ;
+    }
+}
