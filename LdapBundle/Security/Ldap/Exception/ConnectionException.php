@@ -9,7 +9,7 @@
  * file that was distributed with this source code.
  */
 
-namespace Daps\LdapBundle\Exception;
+namespace Daps\LdapBundle\Security\Ldap\Exception;
 
 /**
  * ConnectionException is throw if binding to ldap can not be established

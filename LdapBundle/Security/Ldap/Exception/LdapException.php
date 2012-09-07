@@ -9,7 +9,7 @@
  * file that was distributed with this source code.
  */
 
-namespace Daps\LdapBundle\Exception;
+namespace Daps\LdapBundle\Security\Ldap\Exception;
 
 /**
  * LdapException is throw if php ldap module is not laoded
