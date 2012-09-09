@@ -10,7 +10,7 @@ services:
         
     daps_ldap_user_provider:
         class: %daps_ldap.user_provider.class%
-        arguments: ['']
+        arguments: [@daps_ldap.ldap]
 
     daps_ldap.security.authentication.provider:
         class: %daps_ldap.authentication_provider.class%
