@@ -1,11 +1,20 @@
 parameters:
-    daps_ldap.user_provider.class: Daps\LdapBundle\Security\Ldap\User\LdapUserProvider
+    daps_ldap.user_provider.class: Daps\LdapBundle\Security\User\LdapUserProvider
     daps_ldap.authentication_provider.class: Daps\LdapBundle\Security\Authentication\Provider\LdapAuthenticationProvider
+    security.user_checker.class: Symfony\Component\Security\Core\User\UserChecker
+    daps_ldap.ldap.class: Daps\LdapBundle\Security\Ldap\Ldap
     
 services:
+    security.user_checker:
+        class: %security.user_checker.class%
+        
     daps_ldap_user_provider:
         class: %daps_ldap.user_provider.class%
+        arguments: ['']
 
     daps_ldap.security.authentication.provider:
         class: %daps_ldap.authentication_provider.class%
-        arguments: ['', Symfony\Component\Security\Core\User\UserChecker , '', ]
+        arguments: ['', security.user_checker , '', %security.authentication.hide_user_not_found% ]
+        
+    daps_ldap.ldap:
+        class: %daps_ldap.ldap.class%
