@@ -1,7 +1,6 @@
 parameters:
-#    daps_ldap.example.class: Daps\LdapBundle\Example
-
+    daps_ldap.user_provider.class: Daps\LdapBundle\LdapUserProvider
+    
 services:
-#    daps_ldap.example:
-#        class: %daps_ldap.example.class%
-#        arguments: [@service_id, "plain_value", %parameter%]
+    daps_ldap_user_provider:
+        class: %daps_ldap.user_provider.class%
