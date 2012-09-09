@@ -9,9 +9,9 @@
  * file that was distributed with this source code.
  */
 
-namespace Symfony\Component\Security\Tests\Core\Authentication\Provider;
+namespace Daps\LdapBundle\Tests\Security\Authentication\Provider;
 
-use Symfony\Component\Security\Core\Authentication\Provider\LdapAuthenticationProvider;
+use Daps\LdapBundle\Security\Authentication\Provider\LdapAuthenticationProvider;
 use Symfony\Component\Security\Core\Authentication\Token\UsernamePasswordToken;
 use Symfony\Component\Security\Core\Exception\UsernameNotFoundException;
 use Symfony\Component\Security\Core\User\User;

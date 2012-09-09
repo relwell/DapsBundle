@@ -11,6 +11,7 @@
 
 namespace Daps\LdapBundle\Security\User;
 
+use Symfony\Component\Security\Core\User\UserProviderInterface;
 use Symfony\Component\Security\Core\Exception\UsernameNotFoundException;
 
 /**

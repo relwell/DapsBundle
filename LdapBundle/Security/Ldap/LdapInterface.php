@@ -1,6 +1,6 @@
 <?php
 
-namespace Symfony\Component\Security\Ldap;
+namespace Daps\LdapBundle\Security\Ldap;
 
 use Symfony\Component\Security\Ldap\Exception\ConnectionException;
 

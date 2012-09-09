@@ -13,8 +13,9 @@ namespace Daps\LdapBundle\Security\User;
 
 use Symfony\Component\Security\Core\Exception\UnsupportedUserException;
 use Symfony\Component\Security\Core\Exception\UsernameNotFoundException;
-use Symfony\Component\Security\Ldap\Exception\ConnectionException;
-use Symfony\Component\Security\Ldap\LdapInterface;
+use Symfony\Component\Security\Core\User\User;
+use Daps\LdapBundle\Security\Ldap\Exception\ConnectionException;
+use Daps\LdapBundle\Security\Ldap\LdapInterface;
 
 /**
  * LdapUserProvider is a simple user provider on top of ldap.

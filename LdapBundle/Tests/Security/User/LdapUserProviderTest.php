@@ -1,10 +1,11 @@
 <?php
 
-namespace Symfony\Component\Security\Tests\Core\User;
+namespace Daps\LdapBundle\Tests\Seucrity\User;
 
-use Symfony\Component\Security\Core\User\LdapUserProvider;
+use Daps\LdapBundle\Security\User\LdapUserProvider;
+use Daps\LdapBundle\Security\Ldap\Exception\ConnectionException;
 use Symfony\Component\Security\Core\User\User;
-use Symfony\Component\Security\Ldap\Exception\ConnectionException;
+
 
 class LdapUserProviderTest extends \PHPUnit_Framework_TestCase
 {
