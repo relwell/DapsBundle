@@ -1,0 +1,22 @@
+<?xml version="1.0" ?>
+
+<container xmlns="http://symfony.com/schema/dic/services"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
+
+    <parameters>
+        <parameter key="security.user_checker.class">Symfony\Component\Security\Core\User\UserChecker</parameter>
+        <parameter key="security.user.provider.ldap.class">Daps\LdapBundle\Security\User\LdapUserProvider</parameter>
+        <parameter key="security.ldap.ldap.class">Daps\LdapBundle\Security\Ldap\Ldap</parameter>
+    </parameters>
+
+    <services>
+        <service id="security.user_checker" class="%security.user_checker.class%" public="false" />
+
+        <service id="security.user.provider.ldap" class="%security.user.provider.ldap.class%" abstract="true" public="false">
+            <argument /> <!-- security.ldap.ldap -->
+        </service>
+
+        <service id="security.ldap.ldap" class="%security.ldap.ldap.class%" abstract="true" public="false"/>
+    </services>
+</container>
