@@ -27,7 +27,7 @@ class FormLoginLdapFactory extends FormLoginFactory
     {
         $provider = 'security.authentication.provider.ldap.'.$id;
         $container
-            ->setDefinition($provider, new DefinitionDecorator('security.authentication.provider.ldap'))
+            ->setDefinition($provider, new DefinitionDecorator('daps_ldap.security.authentication.provider'))
             ->replaceArgument(0, new Reference($userProviderId))
             ->replaceArgument(2, $id)
         ;
