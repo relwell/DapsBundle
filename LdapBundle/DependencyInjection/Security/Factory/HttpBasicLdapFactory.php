@@ -26,7 +26,7 @@ class HttpBasicLdapFactory extends HttpBasicFactory
 {
     public function create(ContainerBuilder $container, $id, $config, $userProvider, $defaultEntryPoint)
     {
-        $provider = 'security.authentication.provider.ldap.'.$id;
+        $provider = 'daps_ldap_user_provider.'.$id;
         $container
             ->setDefinition($provider, new DefinitionDecorator('security.authentication.provider.ldap'))
             ->replaceArgument(0, new Reference($userProvider))

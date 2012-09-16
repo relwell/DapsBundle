@@ -20,7 +20,7 @@ services:
 
     daps_ldap.security.authentication.provider:
         class: %daps_ldap.authentication_provider.class%
-        arguments: ['', security.user_checker , '', %security.authentication.hide_user_not_found% ]
+        arguments: ['', @security.user_checker , '', %security.authentication.hide_user_not_found% ]
         
     daps_ldap.ldap:
         class: %daps_ldap.ldap.class%
