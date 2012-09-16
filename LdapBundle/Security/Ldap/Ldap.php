@@ -122,16 +122,20 @@ class Ldap implements LdapInterface
     private function connect()
     {
         if (!$this->connection) {
+            $time = time();
             $this->connection = ldap_connect($this->host, $this->port);
-
+            $res = ldap_search($this->connection, 'ou=people,dc=example,dc=com', 'uid=John');
+            var_dump(ldap_get_entries($this->connection, $res)); die;
             ldap_set_option($this->connection, LDAP_OPT_PROTOCOL_VERSION, 3);
             ldap_set_option($this->connection, LDAP_OPT_REFERRALS, 0);
-
-            if (false === @ldap_bind($this->connection, $this->getUsernameWithSuffix(), $this->password)) {
+            if (false === @ldap_bind($this->connection, $this->getFullyQualifiedDN($this->username), $this->password)) {
+                var_dump(sprintf('%s %s', $this->getFullyQualifiedDN($this->username), $this->password));
+                echo 'no'; die;
                 throw new ConnectionException(sprintf('Username / password invalid to connect on Ldap server %s:%s', $this->host, $this->port));
             }
+            var_dump(sprintf('%s %s', $this->getFullyQualifiedDN($this->username), $this->password));
+            echo 'hi'; die;
         }
-
         return $this;
     }
 
@@ -146,12 +150,18 @@ class Ldap implements LdapInterface
         return $this;
     }
 
+    private function getFullyQualifiedDN($username = null)
+    {
+        $username = $username ?: $this->username;
+        return $this->getUsernameWithSuffix(sprintf('%s=%s', $this->dn, $username));
+    }
+    
     private function getUsernameWithSuffix($username = null)
     {
         if (null === $username) {
             $username = $this->username;
         }
 
-        return $username.$this->usernameSuffix;
+        return $username.','.$this->usernameSuffix;
     }
 }
