@@ -4,6 +4,7 @@ namespace Daps\LdapBundle\Security\Ldap;
 
 use Daps\LdapBundle\Security\Ldap\Exception\ConnectionException;
 use Daps\LdapBundle\Security\Ldap\Exception\LdapException;
+use Symfony\Component\Security\Core\Exception\AuthenticationException;
 
 /*
  * @author Grégoire Pineau <lyrixx@lyrixx.info>
@@ -17,6 +18,7 @@ class Ldap implements LdapInterface
     private $username;
     private $password;
     private $usernameSuffix;
+    private $inactiveKeyValue;
 
     private $connection;
 
@@ -28,16 +30,17 @@ class Ldap implements LdapInterface
      * @param string  $dn
      * @param string  $usernameSuffix
      */
-    public function __construct($host = null, $port = 389, $dn = null, $usernameSuffix = null)
+    public function __construct($host = null, $port = 389, $dn = null, $usernameSuffix = null, $inactiveKeyValue = null )
     {
         if (!extension_loaded('ldap')) {
             throw new LdapException('Ldap module is needed. ');
         }
 
-        $this->host           = $host;
-        $this->port           = $port;
-        $this->dn             = $dn;
-        $this->usernameSuffix = $usernameSuffix;
+        $this->host             = $host;
+        $this->port             = $port;
+        $this->dn               = $dn;
+        $this->usernameSuffix   = $usernameSuffix;
+        $this->inactiveKeyValue = $inactiveKeyValue; 
 
         $this->connection = null;
     }
@@ -62,7 +65,6 @@ class Ldap implements LdapInterface
         if (0 === $infos['count']) {
             return null;
         }
-
         return $infos[0];
     }
 
@@ -126,11 +128,30 @@ class Ldap implements LdapInterface
             $this->connection = ldap_connect($this->host, $this->port);
             ldap_set_option($this->connection, LDAP_OPT_PROTOCOL_VERSION, 3);
             ldap_set_option($this->connection, LDAP_OPT_REFERRALS, 0);
+            
+            if ( $this->usernameIsInactive() ) {
+                throw new AuthenticationException("The account for user {$this->username} is inactive.");
+            }
+            
             if (false === @ldap_bind($this->connection, $this->getFullyQualifiedDN($this->username), $this->password)) {
                 throw new ConnectionException(sprintf('Username / password invalid to connect on Ldap server %s:%s', $this->host, $this->port));
             }
         }
         return $this;
+    }
+    
+    private function usernameIsInactive()
+    {
+        $search = ldap_search($this->connection, $this->usernameSuffix, $this->getDnAndValue($this->username));
+        $infos  = ldap_get_entries($this->connection, $search);
+        
+        list($inactiveKey, $inactiveValue) = explode('=', $this->inactiveKeyValue);
+        
+        return (   $infos['count'] > 0
+                && isset($infos[0][$inactiveKey])
+                && ($infos[0][$inactiveKey]['count'] > 0)
+                && $inactiveValue == $infos[0][$inactiveKey][0] 
+               ); 
     }
 
     private function disconnect()
@@ -147,7 +168,12 @@ class Ldap implements LdapInterface
     private function getFullyQualifiedDN($username = null)
     {
         $username = $username ?: $this->username;
-        return $this->getUsernameWithSuffix(sprintf('%s=%s', $this->dn, $username));
+        return $this->getUsernameWithSuffix($this->getDnAndValue($username));
+    }
+    
+    private function getDnAndValue($username)
+    {
+        return sprintf('%s=%s', $this->dn, $username);
     }
     
     private function getUsernameWithSuffix($username = null)
