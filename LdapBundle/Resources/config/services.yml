@@ -4,7 +4,8 @@ parameters:
     daps_ldap.ldap.port: 389
     daps_ldap.ldap.dn: uid
     daps_ldap.ldap.username_suffix: ou=people,dc=example,dc=com
-    daps_ldap.ldap.inactive_key_value: shadowflag=0
+    # userprovider param
+    daps_ldap_user_provider.inactive_key_value: shadowflag=0
     # class parameters
     daps_ldap.user_provider.class: Daps\LdapBundle\Security\User\LdapUserProvider
     daps_ldap.authentication_provider.class: Daps\LdapBundle\Security\Authentication\Provider\LdapAuthenticationProvider
@@ -17,7 +18,7 @@ services:
         
     daps_ldap_user_provider:
         class: %daps_ldap.user_provider.class%
-        arguments: [@daps_ldap.ldap]
+        arguments: [@daps_ldap.ldap, %daps_ldap_user_provider.inactive_key_value%]
 
     daps_ldap.security.authentication.provider:
         class: %daps_ldap.authentication_provider.class%
@@ -25,4 +26,4 @@ services:
         
     daps_ldap.ldap:
         class: %daps_ldap.ldap.class%
-        arguments: [%daps_ldap.ldap.host%, %daps_ldap.ldap.port%, %daps_ldap.ldap.dn%, %daps_ldap.ldap.username_suffix%, %daps_ldap.ldap.inactive_key_value%]
+        arguments: [%daps_ldap.ldap.host%, %daps_ldap.ldap.port%, %daps_ldap.ldap.dn%, %daps_ldap.ldap.username_suffix%]
