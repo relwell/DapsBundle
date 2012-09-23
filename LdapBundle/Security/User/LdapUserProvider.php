@@ -43,7 +43,7 @@ class LdapUserProvider implements LdapUserProviderInterface
      */
     public function loadUserByUsername($username)
     {
-        throw new \BadMethodCallException(sprintf('You sould not call the method "%s"', __METHOD__));
+        throw new \BadMethodCallException(sprintf('You should not call the method "%s"', __METHOD__));
     }
 
     /**
@@ -60,7 +60,7 @@ class LdapUserProvider implements LdapUserProviderInterface
         }
 
         // @todo : how to manage roles ?
-        return new User($username, $password, array('ROLE_USER'));
+        return new User($username, null, array('ROLE_USER'));
     }
 
     /**
@@ -72,7 +72,7 @@ class LdapUserProvider implements LdapUserProviderInterface
             throw new UnsupportedUserException(sprintf('Instances of "%s" are not supported.', get_class($user)));
         }
 
-        return $this->loadUserByUsernameAndPassword($user->getUsername(), $user->getPassword());
+        return new User($user->getUsername(), null, $user->getRoles());
     }
 
     /**
