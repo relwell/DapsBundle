@@ -15,9 +15,14 @@ class Ldap implements LdapInterface
     private $host;
     private $port;
     private $dn;
+    private $usernameSuffix;
+    private $version;
+    private $useSsl;
+    private $useStartTls;
+    private $optReferrals;
     private $username;
     private $password;
-    private $usernameSuffix;
+    
     private $inactiveKeyValue;
 
     private $connection;
@@ -29,8 +34,13 @@ class Ldap implements LdapInterface
      * @param integer $port
      * @param string  $dn
      * @param string  $usernameSuffix
+     * @param integer $version
+     * @param boolean $useSsl
+     * @param boolean $useStartTls
+     * @param boolean $optReferrals
+     * @param sring   $inactiveKeyValue
      */
-    public function __construct($host = null, $port = 389, $dn = null, $usernameSuffix = null, $inactiveKeyValue = null )
+    public function __construct($host = null, $port = 389, $dn = null, $usernameSuffix = null, $version = 3, $useSsl = false, $useStartTls = false, $optReferrals = false, $inactiveKeyValue = null )
     {
         if (!extension_loaded('ldap')) {
             throw new LdapException('Ldap module is needed. ');
@@ -41,33 +51,14 @@ class Ldap implements LdapInterface
         $this->dn               = $dn;
         $this->usernameSuffix   = $usernameSuffix;
         $this->inactiveKeyValue = $inactiveKeyValue; 
+        $this->version        = $version;
+        $this->useSsl         = (boolean) $useSsl;
+        $this->useStartTls    = (boolean) $useStartTls;
+        $this->optReferrals   = (boolean) $optReferrals;
 
         $this->connection = null;
     }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function findByUsername($username, $query, $filter = '*')
-    {
-        if (!$this->connection) {
-            $this->connect();
-        }
-
-        if (!is_array($filter)) {
-            $filter = array($filter);
-        }
-
-        $query  = sprintf($query, $this->getUsernameWithSuffix($username));
-        $search = ldap_search($this->connection, $this->dn, $query, $filter);
-        $infos  = ldap_get_entries($this->connection, $search);
-
-        if (0 === $infos['count']) {
-            return null;
-        }
-        return $infos[0];
-    }
-
+    
     /**
      * {@inheritdoc}
      */
@@ -76,27 +67,153 @@ class Ldap implements LdapInterface
         if (!$this->connection) {
             $this->connect();
         }
-
+    
         return $this->connection;
     }
-
+    
     public function __destruct()
     {
         $this->disconnect();
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getHost()
+    {
+        return $this->host;
+    }
+    
+    /**
+     * {@inheritdoc}
+     */
+    public function setHost($host)
+    {
+        $this->host = $host;
+    
+        return $this;
     }
 
     public function getPort()
     {
         return $this->port;
     }
-
+    
     public function setPort($port)
     {
         $this->port = $port;
-
+    
         return $this;
     }
 
+    /**
+     * {@inheritdoc}
+     */
+    public function getDn()
+    {
+        return $this->dn;
+    }
+    
+    /**
+     * {@inheritdoc}
+     */
+    public function setDn($dn)
+    {
+        $this->dn = $dn;
+    
+        return $this;
+    }
+    
+    /**
+     * {@inheritdoc}
+     */
+    public function getUsernameSuffix()
+    {
+        return $this->usernameSuffix;
+    }
+    
+    /**
+     * {@inheritdoc}
+     */
+    public function setUsernameSuffix($usernameSuffix)
+    {
+        $this->usernameSuffix = $usernameSuffix;
+    
+        return $this;
+    }
+    
+    /**
+     * {@inheritdoc}
+     */
+    public function getVersion()
+    {
+        return $this->version;
+    }
+    
+    /**
+     * {@inheritdoc}
+     */
+    public function setVersion($version)
+    {
+        $this->version = $version;
+    
+        return $this;
+    }
+    
+    /**
+     * {@inheritdoc}
+     */
+    public function getUseSsl()
+    {
+        return $this->useSsl;
+    }
+    
+    /**
+     * {@inheritdoc}
+     */
+    public function setUseSsl($useSsl)
+    {
+        $this->useSsl = (boolean) $useSsl;
+    
+        return $this;
+    }
+    
+    /**
+     * {@inheritdoc}
+     */
+    public function getUseStartTls()
+    {
+        return $this->useStartTls;
+    }
+    
+    /**
+     * {@inheritdoc}
+     */
+    public function setUseStartTls($useStartTls)
+    {
+        $this->useStartTls = (boolean) $useStartTls;
+    
+        return $this;
+    }
+    
+    /**
+     * {@inheritdoc}
+     */
+    public function getOptReferrals()
+    {
+        return $this->optReferrals;
+    }
+    
+    /**
+     * {@inheritdoc}
+     */
+    public function setOptReferrals($optReferrals)
+    {
+        $this->optReferrals = (boolean) $optReferrals;
+    
+        return $this;
+    }
+    
     public function getUsername()
     {
         return $this->username;
@@ -121,13 +238,44 @@ class Ldap implements LdapInterface
         return $this;
     }
 
+    /**
+     * {@inheritdoc}
+     */
+    public function findByUsername($username, $query, $filter = '*')
+    {
+        if (!$this->connection) {
+            $this->connect();
+        }
+    
+        if (!is_array($filter)) {
+            $filter = array($filter);
+        }
+    
+        $query  = sprintf($query, $this->getUsernameWithSuffix($username));
+        $search = ldap_search($this->connection, $this->dn, $query, $filter);
+        $infos  = ldap_get_entries($this->connection, $search);
+    
+        if (0 === $infos['count']) {
+            return null;
+        }
+        return $infos[0];
+    }
+    
     private function connect()
     {
         if (!$this->connection) {
-            $time = time();
-            $this->connection = ldap_connect($this->host, $this->port);
-            ldap_set_option($this->connection, LDAP_OPT_PROTOCOL_VERSION, 3);
-            ldap_set_option($this->connection, LDAP_OPT_REFERRALS, 0);
+            $host = $this->getHost();
+            if ($this->getUseSsl()) {
+                $host = 'ldaps://' . $host;
+            }
+            $this->connection = ldap_connect($host, $this->getPort());
+            
+            ldap_set_option($this->connection, LDAP_OPT_PROTOCOL_VERSION, $this->getVersion());
+            ldap_set_option($this->connection, LDAP_OPT_REFERRALS, $this->getOptReferrals());
+            
+            if ($this->getUseStartTls()) {
+                ldap_start_tls($this->connection);
+            }
             
             if ( $this->usernameIsInactive() ) {
                 throw new AuthenticationException("The account for user {$this->username} is inactive.");
@@ -138,20 +286,6 @@ class Ldap implements LdapInterface
             }
         }
         return $this;
-    }
-    
-    private function usernameIsInactive()
-    {
-        $search = ldap_search($this->connection, $this->usernameSuffix, $this->getDnAndValue($this->username));
-        $infos  = ldap_get_entries($this->connection, $search);
-        
-        list($inactiveKey, $inactiveValue) = explode('=', $this->inactiveKeyValue);
-        
-        return (   $infos['count'] > 0
-                && isset($infos[0][$inactiveKey])
-                && ($infos[0][$inactiveKey]['count'] > 0)
-                && $inactiveValue == $infos[0][$inactiveKey][0] 
-               ); 
     }
 
     private function disconnect()
@@ -165,6 +299,56 @@ class Ldap implements LdapInterface
         return $this;
     }
 
+    /**
+     * Escapes the given VALUES according to RFC 2254 so that they can be safely used in LDAP filters.
+     *
+     * Any control characters with an ASCII code < 32 as well as the characters with special meaning in
+     * LDAP filters "*", "(", ")", and "\" (the backslash) are converted into the representation of a
+     * backslash followed by two hex digits representing the hexadecimal value of the character.
+    
+     * @see Net_LDAP2_Util::escape_filter_value() from Benedikt Hallinger <beni@php.net>
+     * @link http://pear.php.net/package/Net_LDAP2
+     * @author Benedikt Hallinger <beni@php.net>
+     *
+     * @param string|array $values Array of values to escape
+     * @return array Array $values, but escaped
+     */
+    private function escapeValue($value)
+    {
+        // Escaping of filter meta characters
+        $value = str_replace(array('\\', '*', '(', ')'), array('\5c', '\2a', '\28', '\29'), $value);
+        // ASCII < 32 escaping
+        for ($i = 0; $i < strlen($value); $i++) {
+            $char = substr($value, $i, 1);
+            if (ord($char) < 32) {
+                $hex = dechex(ord($char));
+                if (strlen($hex) == 1)
+                    $hex = '0' . $hex;
+                $value = str_replace($char, '\\' . $hex, $value);
+            }
+        }
+        if (null === $value) {
+            $value = '\0'; // apply escaped "null" if string is empty
+        }
+    
+        return $value;
+    }
+    
+
+    private function usernameIsInactive()
+    {
+        $search = ldap_search($this->connection, $this->usernameSuffix, $this->getDnAndValue($this->username));
+        $infos  = ldap_get_entries($this->connection, $search);
+    
+        list($inactiveKey, $inactiveValue) = explode('=', $this->inactiveKeyValue);
+    
+        return (   $infos['count'] > 0
+                && isset($infos[0][$inactiveKey])
+                && ($infos[0][$inactiveKey]['count'] > 0)
+                && $inactiveValue == $infos[0][$inactiveKey][0]
+        );
+    }
+    
     private function getFullyQualifiedDN($username = null)
     {
         $username = $username ?: $this->username;
