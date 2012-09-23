@@ -36,6 +36,10 @@ class LdapFactory implements UserProviderFactoryInterface
             ->addArgument($config['port'])
             ->addArgument($config['dn'])
             ->addArgument($config['username_suffix'])
+            ->addArgument($config['version'])
+            ->addArgument($config['use_ssl'])
+            ->addArgument($config['use_start_tls'])
+            ->addArgument($config['opt_referrals'])
         ;
 
         $container
@@ -57,6 +61,10 @@ class LdapFactory implements UserProviderFactoryInterface
                 ->scalarNode('port')->cannotBeEmpty()->defaultValue(389)->end()
                 ->scalarNode('dn')->isRequired()->cannotBeEmpty()->end()
                 ->scalarNode('username_suffix')->defaultValue('')->end()
+                ->scalarNode('version')->defaultValue(3)->end()
+                ->scalarNode('use_ssl')->defaultFalse()->end()
+                ->scalarNode('use_start_tls')->defaultFalse()->end()
+                ->scalarNode('opt_referrals')->defaultFalse()->end()
             ->end()
         ;
     }
