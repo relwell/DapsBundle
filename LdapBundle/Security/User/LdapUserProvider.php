@@ -63,7 +63,7 @@ class LdapUserProvider implements LdapUserProviderInterface
         try {
             $this->ldap->setUsername($username);
             $this->ldap->setPassword($password);
-            $this->ldap->getConnection();
+            $this->ldap->bind();
         } catch (ConnectionException $e) {
             throw new UsernameNotFoundException(sprintf('The presented password is invalid. "%s"', $e->getMessage()));
         }

@@ -271,10 +271,17 @@ class Ldap implements LdapInterface
             if ($this->getUseStartTls()) {
                 ldap_start_tls($this->connection);
             }
-            
-            if (false === @ldap_bind($this->connection, $this->getFullyQualifiedDN($this->username), $this->password)) {
-                throw new ConnectionException(sprintf('Username / password invalid to connect on Ldap server %s:%s', $this->host, $this->port));
-            }
+        }
+        return $this;
+    }
+    
+    public function bind()
+    {
+        if (!$this->connection) {
+            $this->connect();
+        }
+        if (false === @ldap_bind($this->connection, $this->getFullyQualifiedDN($this->username), $this->password)) {
+            throw new ConnectionException(sprintf('Username / password invalid to connect on Ldap server %s:%s', $this->host, $this->port));
         }
         return $this;
     }
@@ -327,6 +334,10 @@ class Ldap implements LdapInterface
     
     public function usernameHasListing($username, $key, $value)
     {
+        if (!$this->connection) {
+            $this->connect();
+        }
+        
         $search = ldap_search($this->connection, $this->usernameSuffix, $this->getDnAndValue($username));
         $infos  = ldap_get_entries($this->connection, $search);
         
@@ -348,7 +359,7 @@ class Ldap implements LdapInterface
         return sprintf('%s=%s', $this->dn, $username);
     }
     
-    private function getUsernameWithSuffix($username = null)
+    public function getUsernameWithSuffix($username = null)
     {
         if (null === $username) {
             $username = $this->username;
