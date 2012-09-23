@@ -41,7 +41,7 @@ class LdapUserProviderTest extends \PHPUnit_Framework_TestCase
 
         $this->assertInstanceOf('Symfony\Component\Security\Core\User\User', $user);
         $this->assertEquals('foo', $user->getUsername());
-        $this->assertEquals('bar', $user->getPassword());
+        $this->assertEquals(null, $user->getPassword());
     }
 
     /**
