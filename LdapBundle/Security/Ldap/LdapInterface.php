@@ -175,11 +175,27 @@ interface LdapInterface
      * @return array|null
      */
     public function findByUsername($username, $query, $filter);
+
+    /*
+     * find all listings in an ldap connection matching search criteria
+     *
+     *
+     * @param  string     $username
+     * @param  string     $query
+     * @param  string     $filter
+     * @return array
+     */
+    public function findListingsByUsername($username, $query, $filter = '*');
     
     /**
      * bind connection to ldap 
      */
     public function bind();
+    
+    /**
+     * unbind connection to ldap
+     */
+    public function unbind();
     
     /**
      * tests if a given username has a listing value
@@ -189,4 +205,12 @@ interface LdapInterface
      * @param string $value
      */
     public function usernameHasListing($username, $key, $value);
+    
+    
+    /**
+     * Creates a roles based on organization membership
+     * 
+     * @return array with roles in it
+     */
+    public function getBoundRolesByOrgs();
 }
