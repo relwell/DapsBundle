@@ -289,7 +289,7 @@ class Ldap implements LdapInterface
             $this->connect();
         }
         
-        $usernameListings = $this->findByUsername($this->username, $this->usernameSuffix);
+        $usernameListings = $this->findListingsByUsername($this->username, $this->usernameSuffix);
         
         for ( $i=0; $i < $usernameListings['count']; $i++ )
         {
@@ -399,17 +399,19 @@ class Ldap implements LdapInterface
     {
         if ( $this->boundListing === null ) {
             $this->bind();
-        }
-        
+        } 
         if (isset($this->boundListing['memberof'])) {
             $roles = array();
             foreach ($this->boundListing['memberof'] as $fullOuListing)
             {
-                // i now have two problems, per JWZ
-                $membership = preg_replace('/^.*,(ou=[^,]+),(ou=[^,]+).*$/i', '$1', $fullOuListing);
-                $roles[] = 'ROLE_'.strtoupper($membership);
+                $matches = array();
+                preg_match_all('/(ou=[^,]+)/', $fullOuListing, $matches);
+                foreach ( $matches[0] as $membership )
+                {
+                    $roles[] = 'ROLE_'.strtoupper(preg_replace('/.*=/', '', $membership));
+                }
             }
-            return $roles;
+            return array_unique($roles);
         }
         
         // @todo set default role in config?
