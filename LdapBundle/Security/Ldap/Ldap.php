@@ -22,6 +22,8 @@ class Ldap implements LdapInterface
     private $username;
     private $password;
     
+    private $boundListing;
+    
     private $connection;
 
     /**
@@ -238,6 +240,15 @@ class Ldap implements LdapInterface
      */
     public function findByUsername($username, $query, $filter = '*')
     {
+        $listings = $this->findListingsByUsername($username, $query, $filter);
+        if (0 === $listings['count']) {
+            return null;
+        }
+        return $listings[0];
+    }
+    
+    public function findListingsByUsername($username, $query, $filter = '*')
+    {
         if (!$this->connection) {
             $this->connect();
         }
@@ -246,14 +257,11 @@ class Ldap implements LdapInterface
             $filter = array($filter);
         }
     
-        $query  = sprintf($query, $this->getUsernameWithSuffix($username));
-        $search = ldap_search($this->connection, $this->dn, $query, $filter);
-        $infos  = ldap_get_entries($this->connection, $search);
+        $query    = $this->getDnAndValue($username);
+        $search   = ldap_search($this->connection, $this->usernameSuffix, $query, $filter);
+        $listings = ldap_get_entries($this->connection, $search);
     
-        if (0 === $infos['count']) {
-            return null;
-        }
-        return $infos[0];
+        return $listings;
     }
     
     private function connect()
@@ -280,19 +288,39 @@ class Ldap implements LdapInterface
         if (!$this->connection) {
             $this->connect();
         }
-        if (false === @ldap_bind($this->connection, $this->getFullyQualifiedDN($this->username), $this->password)) {
-            throw new ConnectionException(sprintf('Username / password invalid to connect on Ldap server %s:%s', $this->host, $this->port));
+        
+        $usernameListings = $this->findListingsByUsername($this->username, $this->usernameSuffix);
+        
+        for ( $i=0; $i < $usernameListings['count']; $i++ )
+        {
+            $listing = $usernameListings[$i];
+            if (false !== @ldap_bind($this->connection, $listing['dn'], $this->password)) {
+                // we are now bound
+                $this->boundListing = $listing;
+                return $this;
+            }
         }
+        // if we got here, we couldn't bind to any of the listings that were provided
+        throw new ConnectionException(sprintf('Username / password invalid to connect on Ldap server %s:%s', $this->host, $this->port));
+    }
+    
+    public function unbind()
+    {
+        if (is_resource($this->connection)) {
+            ldap_unbind($this->connection);
+        }
+        
         return $this;
     }
 
     private function disconnect()
     {
         if ($this->connection && is_resource($this->connection)) {
-            ldap_unbind($this->connection);
+            $this->unbind();
         }
 
-        $this->connection = null;
+        $this->boundListing = null;
+        $this->connection   = null;
 
         return $this;
     }
@@ -337,7 +365,6 @@ class Ldap implements LdapInterface
         if (!$this->connection) {
             $this->connect();
         }
-        
         $search = ldap_search($this->connection, $this->usernameSuffix, $this->getDnAndValue($username));
         $infos  = ldap_get_entries($this->connection, $search);
         
@@ -366,5 +393,28 @@ class Ldap implements LdapInterface
         }
 
         return $username.','.$this->usernameSuffix;
+    }
+    
+    public function getBoundRolesByOrgs()
+    {
+        if ( $this->boundListing === null ) {
+            $this->bind();
+        } 
+        if (isset($this->boundListing['memberof'])) {
+            $roles = array();
+            foreach ($this->boundListing['memberof'] as $fullOuListing)
+            {
+                $matches = array();
+                preg_match_all('/(ou=[^,]+)/', $fullOuListing, $matches);
+                foreach ( $matches[0] as $membership )
+                {
+                    $roles[] = 'ROLE_'.strtoupper(preg_replace('/.*=/', '', $membership));
+                }
+            }
+            return array_unique($roles);
+        }
+        
+        // @todo set default role in config?
+        return array('ROLE_USER');
     }
 }

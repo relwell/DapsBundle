@@ -69,9 +69,10 @@ class LdapUserProvider implements LdapUserProviderInterface
         } catch (ConnectionException $e) {
             throw new UsernameNotFoundException(sprintf('The presented password is invalid. "%s"', $e->getMessage()));
         }
+        
+        $roleArray = $this->ldap->getBoundRolesByOrgs();
 
-        // @todo : how to manage roles ?
-        return new User($username, null, array('ROLE_USER'));
+        return new User($username, null, $roleArray);
     }
 
     /**

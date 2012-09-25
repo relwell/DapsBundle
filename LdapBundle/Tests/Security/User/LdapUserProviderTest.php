@@ -35,6 +35,11 @@ class LdapUserProviderTest extends \PHPUnit_Framework_TestCase
             ->expects($this->once())
             ->method('bind')
         ;
+        $ldap
+            ->expects($this->once())
+            ->method('getBoundRolesByOrgs')
+            ->will($this->returnValue(array('ROLE_USER')))
+        ;
 
         $provider = new LdapUserProvider($ldap);
         $user = $provider->loadUserByUsernameAndPassword('foo', 'bar');
@@ -42,6 +47,7 @@ class LdapUserProviderTest extends \PHPUnit_Framework_TestCase
         $this->assertInstanceOf('Symfony\Component\Security\Core\User\User', $user);
         $this->assertEquals('foo', $user->getUsername());
         $this->assertEquals(null, $user->getPassword());
+        $this->assertEquals(array('ROLE_USER'), $user->getRoles());
     }
 
     /**
@@ -82,6 +88,5 @@ class LdapUserProviderTest extends \PHPUnit_Framework_TestCase
         
         $provider = new LdapUserProvider($ldap, 'foo=bar');
         $provider->loadUserByUsernameAndPassword('foo', 'bar');
-        
     }
 }
