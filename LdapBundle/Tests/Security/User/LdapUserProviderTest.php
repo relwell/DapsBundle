@@ -67,4 +67,21 @@ class LdapUserProviderTest extends \PHPUnit_Framework_TestCase
         $provider = new LdapUserProvider($ldap);
         $provider->loadUserByUsernameAndPassword('foo', 'bar');
     }
+    
+    /**
+     * @expectedException \Symfony\Component\Security\Core\Exception\AuthenticationException
+     */
+    public function testLoadUserByUserNameAndPasswordInactive()
+    {
+        $ldap = $this->getMock('Daps\LdapBundle\Security\Ldap\LdapInterface');
+        $ldap
+            ->expects($this->once())
+            ->method('usernameHasListing')
+            ->will($this->returnValue(true))
+        ;
+        
+        $provider = new LdapUserProvider($ldap, 'foo=bar');
+        $provider->loadUserByUsernameAndPassword('foo', 'bar');
+        
+    }
 }

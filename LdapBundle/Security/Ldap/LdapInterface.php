@@ -180,4 +180,13 @@ interface LdapInterface
      * bind connection to ldap 
      */
     public function bind();
+    
+    /**
+     * tests if a given username has a listing value
+     * 
+     * @param string $username
+     * @param string $key
+     * @param string $value
+     */
+    public function usernameHasListing($username, $key, $value);
 }
