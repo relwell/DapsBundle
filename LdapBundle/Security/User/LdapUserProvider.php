@@ -33,7 +33,7 @@ class LdapUserProvider implements LdapUserProviderInterface
     /**
      * @param LdapInterface $ldap
      */
-    public function __construct(LdapInterface $ldap, $inactiveKeyValue)
+    public function __construct(LdapInterface $ldap, $inactiveKeyValue=null)
     {
         $this->ldap = $ldap;
         $this->inactiveKeyValue = $inactiveKeyValue;
@@ -55,9 +55,11 @@ class LdapUserProvider implements LdapUserProviderInterface
      */
     public function loadUserByUsernameAndPassword($username, $password)
     {
-        list($key, $value) = explode('=', $this->inactiveKeyValue);
-        if ($this->ldap->usernameHasListing($username, $key, $value)) {
-            throw new AuthenticationException("The account for user {$username} is inactive.");
+        if ( $this->inactiveKeyValue !== null ) {
+            list($key, $value) = explode('=', $this->inactiveKeyValue);
+            if ($this->ldap->usernameHasListing($username, $key, $value)) {
+                throw new AuthenticationException("The account for user {$username} is inactive.");
+            }
         }
         
         try {

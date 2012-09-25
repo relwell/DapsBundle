@@ -7,7 +7,7 @@ use Symfony\Component\Security\Ldap\Exception\ConnectionException;
 interface LdapInterface
 {
     /**
-     * return a connection binded to the ldap
+     * return a connection
      *
      * @return ressource A connection
      *
@@ -175,4 +175,9 @@ interface LdapInterface
      * @return array|null
      */
     public function findByUsername($username, $query, $filter);
+    
+    /**
+     * bind connection to ldap 
+     */
+    public function bind();
 }

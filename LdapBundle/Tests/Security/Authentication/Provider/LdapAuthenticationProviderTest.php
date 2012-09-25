@@ -55,7 +55,7 @@ class LdapAuthenticationProviderTest extends \PHPUnit_Framework_TestCase
     public function getProvider($isLoadMethodCalled = false, $validUser = true)
     {
         $userProvider = $this
-            ->getMockBuilder('Symfony\\Component\\Security\\Core\\User\\LdapUserProvider')
+            ->getMockBuilder('Daps\\LdapBundle\\Security\\User\\LdapUserProvider')
             ->disableOriginalConstructor()
             ->getMock()
         ;

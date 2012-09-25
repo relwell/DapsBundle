@@ -1,6 +1,6 @@
 <?php
 
-namespace Daps\LdapBundle\Tests\Seucrity\User;
+namespace Daps\LdapBundle\Tests\Security\User;
 
 use Daps\LdapBundle\Security\User\LdapUserProvider;
 use Daps\LdapBundle\Security\Ldap\Exception\ConnectionException;
@@ -14,7 +14,7 @@ class LdapUserProviderTest extends \PHPUnit_Framework_TestCase
      */
     public function testLoadUserByUsername()
     {
-        $ldap = $this->getMock('Symfony\Component\Security\Ldap\LdapInterface');
+        $ldap = $this->getMock('Daps\LdapBundle\Security\Ldap\LdapInterface');
 
         $provider = new LdapUserProvider($ldap);
         $user = $provider->loadUserByUsername('foo');
@@ -22,7 +22,7 @@ class LdapUserProviderTest extends \PHPUnit_Framework_TestCase
 
     public function testLoadUserByUsernameAndPasswordOk()
     {
-        $ldap = $this->getMock('Symfony\Component\Security\Ldap\LdapInterface');
+        $ldap = $this->getMock('Daps\LdapBundle\Security\Ldap\LdapInterface');
         $ldap
             ->expects($this->once())
             ->method('setUsername')
@@ -33,7 +33,7 @@ class LdapUserProviderTest extends \PHPUnit_Framework_TestCase
         ;
         $ldap
             ->expects($this->once())
-            ->method('getConnection')
+            ->method('bind')
         ;
 
         $provider = new LdapUserProvider($ldap);
@@ -49,7 +49,7 @@ class LdapUserProviderTest extends \PHPUnit_Framework_TestCase
      */
     public function testLoadUserByUsernameAndPasswordNOk()
     {
-        $ldap = $this->getMock('Symfony\Component\Security\Ldap\LdapInterface');
+        $ldap = $this->getMock('Daps\LdapBundle\Security\Ldap\LdapInterface');
         $ldap
             ->expects($this->once())
             ->method('setUsername')
@@ -60,7 +60,7 @@ class LdapUserProviderTest extends \PHPUnit_Framework_TestCase
         ;
         $ldap
             ->expects($this->once())
-            ->method('getConnection')
+            ->method('bind')
             ->will($this->throwException(new ConnectionException('baz')))
         ;
 
