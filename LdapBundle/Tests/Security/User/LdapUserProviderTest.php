@@ -35,6 +35,11 @@ class LdapUserProviderTest extends \PHPUnit_Framework_TestCase
             ->expects($this->once())
             ->method('bind')
         ;
+        $ldap
+            ->expects($this->once())
+            ->method('getBoundRolesByOrgs')
+            ->will($this->returnValue(array('ROLE_USER')))
+        ;
 
         $provider = new LdapUserProvider($ldap);
         $user = $provider->loadUserByUsernameAndPassword('foo', 'bar');
