@@ -4,7 +4,7 @@ namespace Daps\LdapBundle\Tests\Security\User;
 
 use Daps\LdapBundle\Security\User\LdapUserProvider;
 use Daps\LdapBundle\Security\Ldap\Exception\ConnectionException;
-use Symfony\Component\Security\Core\User\User;
+use Daps\LdapBundle\Security\User\LdapUser;
 
 
 class LdapUserProviderTest extends \PHPUnit_Framework_TestCase
@@ -40,14 +40,20 @@ class LdapUserProviderTest extends \PHPUnit_Framework_TestCase
             ->method('getBoundRolesByOrgs')
             ->will($this->returnValue(array('ROLE_USER')))
         ;
+        $ldap
+            ->expects($this->once())
+            ->method('getBoundListing')
+            ->will($this->returnValue(array('testListing')))
+        ;
 
         $provider = new LdapUserProvider($ldap);
         $user = $provider->loadUserByUsernameAndPassword('foo', 'bar');
 
-        $this->assertInstanceOf('Symfony\Component\Security\Core\User\User', $user);
+        $this->assertInstanceOf('Daps\LdapBundle\Security\User\LdapUser', $user);
         $this->assertEquals('foo', $user->getUsername());
         $this->assertEquals(null, $user->getPassword());
         $this->assertEquals(array('ROLE_USER'), $user->getRoles());
+        $this->assertEquals(array('testListing'), $user->getLdapListing());
     }
 
     /**

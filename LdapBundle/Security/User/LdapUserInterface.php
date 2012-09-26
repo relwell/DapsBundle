@@ -6,8 +6,6 @@ use Symfony\Component\Security\Core\User\UserInterface;
 
 interface LdapUserInterface extends UserInterface
 {
-    protected $ldapListing;
-    
     /**
      * Sets the listing for an LDAP user
      * @param array $listing

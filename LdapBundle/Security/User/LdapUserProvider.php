@@ -13,6 +13,7 @@ namespace Daps\LdapBundle\Security\User;
 
 use Symfony\Component\Security\Core\Exception\UnsupportedUserException;
 use Symfony\Component\Security\Core\Exception\UsernameNotFoundException;
+use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Security\Core\Exception\AuthenticationException;
 use Daps\LdapBundle\Security\Ldap\Exception\ConnectionException;
 use Daps\LdapBundle\Security\Ldap\LdapInterface;
@@ -58,6 +59,7 @@ class LdapUserProvider implements LdapUserProviderInterface
         if ( $this->inactiveKeyValue !== null ) {
             list($key, $value) = explode('=', $this->inactiveKeyValue);
             if ($this->ldap->usernameHasListing($username, $key, $value)) {
+                // we could also return a user with enabled = false
                 throw new AuthenticationException("The account for user {$username} is inactive.");
             }
         }
@@ -81,7 +83,7 @@ class LdapUserProvider implements LdapUserProviderInterface
     /**
      * {@inheritDoc}
      */
-    public function refreshUser(LdapUserInterface $user)
+    public function refreshUser(UserInterface $user)
     {
         if (!$user instanceof LdapUser) {
             throw new UnsupportedUserException(sprintf('Instances of "%s" are not supported.', get_class($user)));
