@@ -14,10 +14,10 @@ namespace Daps\LdapBundle\Security\User;
 use Symfony\Component\Security\Core\Exception\UnsupportedUserException;
 use Symfony\Component\Security\Core\Exception\UsernameNotFoundException;
 use Symfony\Component\Security\Core\Exception\AuthenticationException;
-use Symfony\Component\Security\Core\User\User;
-use Symfony\Component\Security\Core\User\UserInterface;
 use Daps\LdapBundle\Security\Ldap\Exception\ConnectionException;
 use Daps\LdapBundle\Security\Ldap\LdapInterface;
+use Daps\LdapBundle\Security\User\LdapUser;
+use Daps\LdapBundle\Security\User\LdapUserInterface;
 
 
 /**
@@ -71,20 +71,25 @@ class LdapUserProvider implements LdapUserProviderInterface
         }
         
         $roleArray = $this->ldap->getBoundRolesByOrgs();
-
-        return new User($username, null, $roleArray);
+        
+        $user = new LdapUser($username, null, $roleArray);
+        $user->setLdapListing($this->ldap->getBoundListing());
+        
+        return $user;
     }
 
     /**
      * {@inheritDoc}
      */
-    public function refreshUser(UserInterface $user)
+    public function refreshUser(LdapUserInterface $user)
     {
-        if (!$user instanceof User) {
+        if (!$user instanceof LdapUser) {
             throw new UnsupportedUserException(sprintf('Instances of "%s" are not supported.', get_class($user)));
         }
 
-        return new User($user->getUsername(), null, $user->getRoles());
+        $ldapUser = new LdapUser($user->getUsername(), null, $user->getRoles());
+        $ldapUser->setListing($this->ldap->getBoundListing());
+        return $ldapUser;
     }
 
     /**
@@ -92,7 +97,7 @@ class LdapUserProvider implements LdapUserProviderInterface
      */
     public function supportsClass($class)
     {
-        return $class === 'Symfony\Component\Security\Core\User\User';
+        return $class === 'Daps\LdapBundle\Security\User\LdapUser';
     }
 
 }
