@@ -417,4 +417,9 @@ class Ldap implements LdapInterface
         // @todo set default role in config?
         return array('ROLE_USER');
     }
+    
+    public function getBoundListing()
+    {
+        return $this->boundListing;
+    }
 }

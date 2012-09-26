@@ -213,4 +213,11 @@ interface LdapInterface
      * @return array with roles in it
      */
     public function getBoundRolesByOrgs();
+    
+    /**
+     * Returns the LDAP listing for the currently bound user
+     * 
+     * @return array listing
+     */
+    public function getBoundListing();
 }
