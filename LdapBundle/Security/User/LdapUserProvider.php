@@ -90,7 +90,7 @@ class LdapUserProvider implements LdapUserProviderInterface
         }
 
         $ldapUser = new LdapUser($user->getUsername(), null, $user->getRoles());
-        $ldapUser->setListing($this->ldap->getBoundListing());
+        $ldapUser->setLdapListing($this->ldap->getBoundListing());
         return $ldapUser;
     }
 
