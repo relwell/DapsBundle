@@ -21,24 +21,30 @@ class Ldap implements LdapInterface
     private $optReferrals;
     private $username;
     private $password;
+    private $enableAdmin;
+    private $adminDn;
+    private $adminPassword;
     
     private $boundListing;
     
     private $connection;
 
-    /**
+	/**
      * contructor
      *
      * @param string  $host
      * @param integer $port
      * @param string  $dn
      * @param string  $usernameSuffix
+     * @param boolean $enableAdmin
+     * @param string  $adminDn
+     * @param string  $adminPassword
      * @param integer $version
      * @param boolean $useSsl
      * @param boolean $useStartTls
      * @param boolean $optReferrals
      */
-    public function __construct($host = null, $port = 389, $dn = null, $usernameSuffix = null, $version = 3, $useSsl = false, $useStartTls = false, $optReferrals = false)
+    public function __construct($host = null, $port = 389, $dn = null, $usernameSuffix = null, $enableAdmin = false, $adminDn = null, $adminPassword = null, $version = 3, $useSsl = false, $useStartTls = false, $optReferrals = false )
     {
         if (!extension_loaded('ldap')) {
             throw new LdapException('Ldap module is needed. ');
@@ -48,10 +54,13 @@ class Ldap implements LdapInterface
         $this->port             = $port;
         $this->dn               = $dn;
         $this->usernameSuffix   = $usernameSuffix;
+        $this->enableAdmin      = (boolean) $enableAdmin;
+        $this->adminDn          = $adminDn;
+        $this->adminPassword    = $adminPassword;
         $this->version          = $version;
         $this->useSsl           = (boolean) $useSsl;
         $this->useStartTls      = (boolean) $useStartTls;
-        $this->optReferrals     = (boolean) $optReferrals;
+        $this->optReferrals     = (boolean) $optReferrals;        
 
         $this->connection = null;
     }
@@ -278,6 +287,15 @@ class Ldap implements LdapInterface
             
             if ($this->getUseStartTls()) {
                 ldap_start_tls($this->connection);
+            }
+            
+            if ($this->enableAdmin) {
+                if ( ($this->adminDn === null) || ($this->adminPassword === null) ) {
+                    throw new ConnectionException('Admin bind required but credentials not provided. Please see ldapcredentials.yml.');
+                }
+                if (false === @ldap_bind($this->connection, $this->adminDn, $this->adminPassword)) {
+                    throw new ConnectionException('Admin bind credentials incorrect. Please see ldapcredentials.yml or review your LDAP configurations.');
+                }
             }
         }
         return $this;
