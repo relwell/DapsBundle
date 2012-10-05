@@ -1,4 +1,4 @@
 *~
 .settings
 .buildpath
-LdapBundle/Resources/config/admincredentials.yml
+LdapBundle/Resources/config/ldapcredentials.yml
