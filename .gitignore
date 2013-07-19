@@ -1,4 +1,6 @@
 *~
+.idea
 .settings
 .buildpath
 LdapBundle/Resources/config/ldapcredentials.yml
+*.iml
