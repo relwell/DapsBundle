@@ -286,7 +286,8 @@ class Ldap implements LdapInterface
             ldap_set_option($this->connection, LDAP_OPT_REFERRALS, $this->getOptReferrals());
             
             if ($this->getUseStartTls()) {
-                ldap_start_tls($this->connection);
+                $tlsResult = ldap_start_tls($this->connection);
+                if (!$tlsResult) throw new ConnectionException('TLS initialization failed!');
             }
             
             if ($this->enableAdmin) {
