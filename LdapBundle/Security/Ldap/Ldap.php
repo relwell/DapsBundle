@@ -350,7 +350,7 @@ class Ldap implements LdapInterface
      * Any control characters with an ASCII code < 32 as well as the characters with special meaning in
      * LDAP filters "*", "(", ")", and "\" (the backslash) are converted into the representation of a
      * backslash followed by two hex digits representing the hexadecimal value of the character.
-    
+     *
      * @see Net_LDAP2_Util::escape_filter_value() from Benedikt Hallinger <beni@php.net>
      * @link http://pear.php.net/package/Net_LDAP2
      * @author Benedikt Hallinger <beni@php.net>
