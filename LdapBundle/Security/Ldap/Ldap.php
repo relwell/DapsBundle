@@ -423,7 +423,7 @@ class Ldap implements LdapInterface
             foreach ($this->boundListing['memberof'] as $fullOuListing)
             {
                 $matches = array();
-                preg_match_all('/(ou=[^,]+)/', $fullOuListing, $matches);
+                preg_match_all('/(ou=[^,]+)/i', $fullOuListing, $matches);
                 foreach ( $matches[0] as $membership )
                 {
                     $roles[] = 'ROLE_'.strtoupper(preg_replace('/.*=/', '', $membership));
