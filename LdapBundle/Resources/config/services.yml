@@ -34,4 +34,4 @@ services:
         
     daps_ldap.ldap:
         class: %daps_ldap.ldap.class%
-        arguments: [%daps_ldap.ldap.host%, %daps_ldap.ldap.port%, %daps_ldap.ldap.dn%, %daps_ldap.ldap.username_suffix%, %daps_ldap.ldap.admin.enable%, %daps_ldap.ldap.admin.dn%, %daps_ldap.ldap.admin.password%]
+        arguments: [%daps_ldap.ldap.host%, %daps_ldap.ldap.port%, %daps_ldap.ldap.dn%, %daps_ldap.ldap.username_suffix%, %daps_ldap.ldap.admin.enable%, %daps_ldap.ldap.admin.dn%, %daps_ldap.ldap.admin.password%, %daps_ldap.ldap.srv%]
