@@ -4,6 +4,7 @@ namespace Daps\LdapBundle\Security\Ldap;
 
 use Daps\LdapBundle\Security\Ldap\Exception\ConnectionException;
 use Daps\LdapBundle\Security\Ldap\Exception\LdapException;
+use Daps\LdapBundle\Security\Ldap\LdapEnvironment;
 
 /*
  * @author Grégoire Pineau <lyrixx@lyrixx.info>
@@ -44,12 +45,13 @@ class Ldap implements LdapInterface
      * @param boolean $useStartTls
      * @param boolean $optReferrals
      */
-    public function __construct($host = null, $port = 389, $dn = null, $usernameSuffix = null, $enableAdmin = false, $adminDn = null, $adminPassword = null, $version = 3, $useSsl = false, $useStartTls = false, $optReferrals = false )
+    public function __construct($srv= false, $host = null, $port = 389, $dn = null, $usernameSuffix = null, $enableAdmin = false, $adminDn = null, $adminPassword = null, $version = 3, $useSsl = false, $useStartTls = false, $optReferrals = false )
     {
         if (!extension_loaded('ldap')) {
             throw new LdapException('Ldap module is needed. ');
         }
 
+        $this->srv              = $srv;
         $this->host             = $host;
         $this->port             = $port;
         $this->dn               = $dn;
@@ -273,32 +275,49 @@ class Ldap implements LdapInterface
         return $listings;
     }
     
-    private function connect()
-    {
+    private function connect() {
         if (!$this->connection) {
-            $host = $this->getHost();
-            if ($this->getUseSsl()) {
-                $host = 'ldaps://' . $host;
-            }
-            $this->connection = ldap_connect($host, $this->getPort());
-            
-            ldap_set_option($this->connection, LDAP_OPT_PROTOCOL_VERSION, $this->getVersion());
-            ldap_set_option($this->connection, LDAP_OPT_REFERRALS, $this->getOptReferrals());
-            
-            if ($this->getUseStartTls()) {
-                $tlsResult = ldap_start_tls($this->connection);
-                if (!$tlsResult) throw new ConnectionException('TLS initialization failed!');
-            }
-            
-            if ($this->enableAdmin) {
-                if ( ($this->adminDn === null) || ($this->adminPassword === null) ) {
-                    throw new ConnectionException('Admin bind required but credentials not provided. Please see ldapcredentials.yml.');
+            if(is_string($this->srv)) {
+                $servers = (new LdapEnvironment($this->srv))->getServerList();
+                if (count($servers) == 0) throw new LdapException('No LDAP servers found!');
+
+                foreach ($servers as $server) {
+                    $this->__connect($server->hostname, $server->port, $server->isSslPort);
+                    if ($this->connection) return $this;
                 }
-                if (false === @ldap_bind($this->connection, $this->adminDn, $this->adminPassword)) {
-                    throw new ConnectionException('Admin bind credentials incorrect. Please see ldapcredentials.yml or review your LDAP configurations.');
-                }
+                throw new LdapException('No LDAP servers could be reached!'); 
+            } else {
+                $this->__connect($this->getHost(), $this->getPort(), $this->getUseSsl());
             }
         }
+
+        return $this;
+    }
+
+    private function __connect($host, $port, $ssl)
+    {
+        if ($ssl) {
+            $host = 'ldaps://' . $host;
+        }
+        $this->connection = ldap_connect($host, $port);
+        
+        ldap_set_option($this->connection, LDAP_OPT_PROTOCOL_VERSION, $this->getVersion());
+        ldap_set_option($this->connection, LDAP_OPT_REFERRALS, $this->getOptReferrals());
+        
+        if ($this->getUseStartTls()) {
+            $tlsResult = ldap_start_tls($this->connection);
+            if (!$tlsResult) throw new ConnectionException('TLS initialization failed!');
+        }
+        
+        if ($this->enableAdmin) {
+            if ( ($this->adminDn === null) || ($this->adminPassword === null) ) {
+                throw new ConnectionException('Admin bind required but credentials not provided. Please see ldapcredentials.yml.');
+            }
+            if (false === @ldap_bind($this->connection, $this->adminDn, $this->adminPassword)) {
+                throw new ConnectionException('Admin bind credentials incorrect. Please see ldapcredentials.yml or review your LDAP configurations.');
+            }
+        }
+
         return $this;
     }
     

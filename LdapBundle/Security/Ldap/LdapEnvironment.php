@@ -31,6 +31,8 @@ either expressed or implied, of the FreeBSD Project.
 
 namespace Daps\LdapBundle\Security\Ldap;
 
+use \stdClass;
+
 /**
  * Class LdapEnvironment
  *
