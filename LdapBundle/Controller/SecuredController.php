@@ -46,24 +46,4 @@ class SecuredController extends Controller
     {
         // The security layer will intercept this request
     }
-
-    /**
-     * @Route("/hello", defaults={"name"="World"}),
-     * @Route("/hello/{name}", name="_demo_secured_hello")
-     * @Template()
-     */
-    public function helloAction($name)
-    {
-        return array('name' => $name);
-    }
-
-    /**
-     * @Route("/hello/admin/{name}", name="_demo_secured_hello_admin")
-     * @Secure(roles="ROLE_ADMIN")
-     * @Template()
-     */
-    public function helloadminAction($name)
-    {
-        return array('name' => $name);
-    }
 }
