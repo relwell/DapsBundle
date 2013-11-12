@@ -279,7 +279,8 @@ class Ldap implements LdapInterface
     private function connect() {
         if (!$this->connection) {
             if(is_string($this->srv)) {
-                $servers = (new LdapEnvironment($this->srv))->getServerList();
+                $ldapEnv = new LdapEnvironment($this->srv);
+                $servers = $ldapEnv->getServerList();
                 if (count($servers) == 0) throw new LdapException('No LDAP servers found!');
 
                 foreach ($servers as $server) {
