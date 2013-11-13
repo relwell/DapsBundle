@@ -14,4 +14,4 @@ we can easily extend these changes for our own purposes.
 
 ###Documentation
 
-For documentation on how to setup and incorporate this LDAP Bundle into an existing Symfony application, see the [Setup Instructions](LdapBundle/Resources/doc/index.rst).
+For documentation on how to setup and incorporate this LDAP Bundle into an existing Symfony application, see the [Setup Instructions](Resources/doc/index.rst).
