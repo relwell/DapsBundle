@@ -46,7 +46,7 @@ class Ldap implements LdapInterface
      * @param boolean $optReferrals
      * @param boolean|string $srv
      */
-    public function __construct($host = null, $port = 389, $dn = null, $usernameSuffix = null, $enableAdmin = false, $adminDn = null, $adminPassword = null, $version = 3, $useSsl = false, $useStartTls = false, $optReferrals = false, $srv= false )
+    public function __construct($host = null, $port = 389, $dn = null, $usernameSuffix = null, $enableAdmin = false, $adminDn = null, $adminPassword = null, $srv = false, $useSsl = false, $useStartTls = false, $optReferrals = false, $version = 3)
     {
         if (!extension_loaded('ldap')) {
             throw new LdapException('Ldap module is needed. ');
