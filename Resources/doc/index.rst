@@ -11,6 +11,7 @@ To setup the LdapBundle, follow these steps:
 2. Add ```new Daps\LdapBundle\DapsLdapBundle()``` to the ```app/AppKernel.php```
 3. Add the ldap config to ``app/config/parameters.yml``
     ::
+
         parameters:
             daps_ldap.ldap.admin.dn: cn=admin,cn=Users,dc=example,dc=com
             daps_ldap.ldap.admin.password: admin
